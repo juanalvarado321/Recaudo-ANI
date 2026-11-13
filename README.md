@@ -102,7 +102,7 @@ npm test
 ```
 
 El archivo debe conservar las columnas `IdPeaje, Peaje, Desde, Hasta, RecaudoFsv,
-RecaudoSobrante, Recaudo` y empezar en enero de 2014; el corte entre entrenamiento y
+RecaudoSobrante, Recaudo` y empezar en un mes de enero; el corte entre entrenamiento y
 prueba está fijo en los primeros 120 meses.
 
 Las estimaciones son un ejercicio estadístico y no constituyen cifras oficiales.
