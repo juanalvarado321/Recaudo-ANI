@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recaudo de peajes ANI · Estimación y análisis</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231D3557'/%3E%3Cpath d='M16 5v5M16 14v5M16 23v4' stroke='%23F2B705' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>/*__ESTILOS__*/</style>
+<style id="css-reporte">/*__ESTILOS_REPORTE__*/</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="cabecera">
+    <div class="ancho cabecera-int">
+      <div>
+        <p class="sobretitulo">Agencia Nacional de Infraestructura · Recaudo vehicular</p>
+        <h1>Estimación del recaudo de peajes</h1>
+      </div>
+      <p class="cabecera-meta" id="cabecera-meta"></p>
+    </div>
+    <div class="carril" aria-hidden="true"></div>
+  </header>
+
+  <section class="controles" aria-label="Selección de peaje y modelo">
+    <div class="ancho controles-int">
+      <div class="campo campo-peaje">
+        <label for="peaje-entrada">Peaje</label>
+        <div class="combo" id="combo">
+          <input id="peaje-entrada" type="text" role="combobox" aria-expanded="false" aria-controls="peaje-lista"
+                 aria-autocomplete="list" autocomplete="off" spellcheck="false" placeholder="Buscar peaje…">
+          <button type="button" class="combo-flecha" id="combo-flecha" tabindex="-1" aria-label="Mostrar la lista de peajes">
+            <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <ul id="peaje-lista" class="combo-lista" role="listbox" aria-label="Peajes" hidden></ul>
+        </div>
+      </div>
+      <div class="campo">
+        <label for="modelo">Modelo de estimación</label>
+        <select id="modelo"></select>
+      </div>
+      <div class="campo campo-corto">
+        <label for="confianza">Intervalo</label>
+        <select id="confianza">
+          <option value="80">80 %</option>
+          <option value="90">90 %</option>
+          <option value="95" selected>95 %</option>
+        </select>
+      </div>
+      <button type="button" class="boton boton-primario" id="btn-reporte">
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M4 1.5h5.5L13 5v9.5H4z M9.5 1.5V5H13 M6 8.5h5 M6 11h5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/></svg>
+        Generar reporte
+      </button>
+    </div>
+  </section>
+
+  <div class="ancho">
+    <div class="pestanas" role="tablist" aria-label="Secciones">
+      <button type="button" role="tab" id="tab-estimacion" aria-controls="panel-estimacion" aria-selected="true">Estimación</button>
+      <button type="button" role="tab" id="tab-resumen" aria-controls="panel-resumen" aria-selected="false" tabindex="-1">Resumen estadístico</button>
+      <button type="button" role="tab" id="tab-peajes" aria-controls="panel-peajes" aria-selected="false" tabindex="-1">Todos los peajes</button>
+      <button type="button" role="tab" id="tab-metodo" aria-controls="panel-metodo" aria-selected="false" tabindex="-1">Datos y método</button>
+    </div>
+  </div>
+
+  <main class="ancho">
+    <!-- ============================================================ Estimación -->
+    <section id="panel-estimacion" role="tabpanel" aria-labelledby="tab-estimacion" tabindex="0">
+      <div class="titulo-seccion">
+        <h2 id="est-titulo"></h2>
+        <p id="est-subtitulo" class="nota"></p>
+      </div>
+      <div id="est-aviso"></div>
+      <div class="indicadores" id="est-indicadores"></div>
+
+      <article class="tarjeta">
+        <div class="tarjeta-cab">
+          <h3>Recaudo mensual: real y estimado</h3>
+          <div class="segmentos" role="group" aria-label="Rango del gráfico">
+            <button type="button" data-rango="todo" aria-pressed="true">Todo</button>
+            <button type="button" data-rango="2020" aria-pressed="false">Desde 2020</button>
+            <button type="button" data-rango="2023" aria-pressed="false">Desde 2023</button>
+          </div>
+        </div>
+        <div class="lienzo lienzo-alto"><canvas id="graf-principal" role="img"></canvas></div>
+        <p class="nota" id="est-nota-grafico"></p>
+      </article>
+
+      <div class="dos-col col-ancha" id="est-tablas">
+        <article class="tarjeta">
+          <div class="tarjeta-cab"><h3>Comparación de modelos en el periodo de prueba</h3></div>
+          <div class="tabla-caja" id="est-modelos"></div>
+          <p class="nota">WAPE: error absoluto total dividido por el recaudo real total. Sesgo: diferencia entre el total estimado y el real (negativo = subestima). Cobertura: proporción de meses en que el valor real cayó dentro del intervalo. La fila resaltada es el modelo seleccionado; elija otro nombre para cambiarlo.</p>
+        </article>
+        <article class="tarjeta">
+          <div class="tarjeta-cab"><h3>Real frente a estimado por año</h3></div>
+          <div class="tabla-caja" id="est-anual"></div>
+          <div id="est-parametros"></div>
+        </article>
+      </div>
+
+      <article class="tarjeta" id="est-detalle-tarjeta">
+        <div class="tarjeta-cab"><h3>Detalle mensual del periodo de prueba</h3><span class="nota">Millones de pesos</span></div>
+        <div class="tabla-caja tabla-desplazable" id="est-detalle"></div>
+      </article>
+    </section>
+
+    <!-- =================================================== Resumen estadístico -->
+    <section id="panel-resumen" role="tabpanel" aria-labelledby="tab-resumen" tabindex="0" hidden>
+      <div class="titulo-seccion">
+        <h2 id="res-titulo"></h2>
+        <p id="res-subtitulo" class="nota"></p>
+      </div>
+      <div class="indicadores" id="res-indicadores"></div>
+      <div class="dos-col">
+        <article class="tarjeta">
+          <div class="tarjeta-cab"><h3>Estadísticos del recaudo mensual</h3></div>
+          <div class="tabla-caja" id="res-estadisticos"></div>
+          <p class="nota" id="res-nota-estadisticos"></p>
+        </article>
+        <article class="tarjeta">
+          <div class="tarjeta-cab"><h3>Cobertura y calidad de los registros</h3></div>
+          <div class="tabla-caja" id="res-calidad"></div>
+          <div id="res-calidad-notas"></div>
+        </article>
+      </div>
+      <div class="dos-col">
+        <article class="tarjeta">
+          <div class="tarjeta-cab"><h3>Recaudo por año</h3></div>
+          <div class="lienzo"><canvas id="graf-anual" role="img"></canvas></div>
+          <p class="nota" id="res-nota-anual"></p>
+        </article>
+        <article class="tarjeta">
+          <div class="tarjeta-cab"><h3>Estacionalidad: índice por mes del año</h3></div>
+          <div class="lienzo"><canvas id="graf-estacional" role="img"></canvas></div>
+          <p class="nota" id="res-nota-estacional"></p>
+        </article>
+      </div>
+      <article class="tarjeta">
+        <div class="tarjeta-cab"><h3>Distribución del recaudo mensual</h3></div>
+        <div class="lienzo"><canvas id="graf-distribucion" role="img"></canvas></div>
+        <p class="nota" id="res-nota-distribucion"></p>
+      </article>
+    </section>
+
+    <!-- ====================================================== Todos los peajes -->
+    <section id="panel-peajes" role="tabpanel" aria-labelledby="tab-peajes" tabindex="0" hidden>
+      <div class="titulo-seccion">
+        <h2>Resumen estadístico de todos los peajes</h2>
+        <p class="nota" id="pea-subtitulo"></p>
+      </div>
+      <article class="tarjeta">
+        <div class="tarjeta-cab">
+          <div class="campo campo-filtro">
+            <label for="pea-filtro" class="solo-lector">Filtrar peajes</label>
+            <input id="pea-filtro" type="search" placeholder="Filtrar por nombre…" autocomplete="off">
+          </div>
+          <span class="nota" id="pea-conteo" aria-live="polite"></span>
+        </div>
+        <div class="tabla-caja tabla-desplazable tabla-alta" id="pea-tabla"></div>
+        <p class="nota">Valores en millones de pesos. Promedio, mediana y CV (desviación estándar ÷ promedio) se calculan sobre meses completos con recaudo. Seleccione un peaje para ver su detalle.</p>
+      </article>
+    </section>
+
+    <!-- ========================================================== Datos y método -->
+    <section id="panel-metodo" role="tabpanel" aria-labelledby="tab-metodo" tabindex="0" hidden>
+      <div class="titulo-seccion"><h2>Datos y método</h2></div>
+      <div class="dos-col">
+        <article class="tarjeta prosa">
+          <h3>Fuente y preparación de los datos</h3>
+          <div id="met-datos"></div>
+          <h3>Medidas de error</h3>
+          <dl class="definiciones">
+            <dt>WAPE</dt><dd>Suma de los errores absolutos mensuales dividida por la suma del recaudo real. Es la medida principal porque no se distorsiona con meses de recaudo muy bajo.</dd>
+            <dt>MAPE</dt><dd>Promedio del error porcentual absoluto de cada mes (solo meses con recaudo real mayor que cero).</dd>
+            <dt>Sesgo</dt><dd>(Total estimado − total real) ÷ total real. Negativo indica que el modelo subestima.</dd>
+            <dt>MAE y RMSE</dt><dd>Error absoluto medio y raíz del error cuadrático medio, en pesos por mes.</dd>
+            <dt>Cobertura</dt><dd>Porcentaje de meses de prueba cuyo valor real quedó dentro del intervalo de estimación. Si el intervalo está bien calibrado, debería acercarse al nivel elegido.</dd>
+          </dl>
+        </article>
+        <article class="tarjeta prosa">
+          <h3>Entrenamiento y prueba</h3>
+          <div id="met-particion"></div>
+          <h3>Modelos</h3>
+          <div id="met-modelos"></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pie ancho">
+    <p id="pie-texto"></p>
+  </footer>
+</div>
+
+<!-- ================================================================== Reporte -->
+<div id="reporte" class="reporte-capa" role="dialog" aria-modal="true" aria-labelledby="reporte-barra-titulo" hidden>
+  <div class="reporte-barra">
+    <p id="reporte-barra-titulo" class="reporte-barra-titulo"></p>
+    <div class="reporte-acciones">
+      <button type="button" class="boton" id="rep-imprimir">Imprimir o guardar como PDF</button>
+      <button type="button" class="boton" id="rep-descargar">Descargar HTML</button>
+      <button type="button" class="boton boton-primario" id="rep-cerrar">Cerrar</button>
+    </div>
+  </div>
+  <div class="reporte-desplaza" id="reporte-desplaza" tabindex="-1">
+    <div id="reporte-doc"></div>
+  </div>
+</div>
+<div id="taller" aria-hidden="true"></div>
+
+<script>/*__CHART__*/</script>
+<script>window.DATOS = /*__DATOS__*/;</script>
+<script>/*__MODELOS__*/</script>
+<script>/*__APP__*/</script>
+</body>
+</html>

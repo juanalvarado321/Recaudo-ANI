@@ -1,0 +1,68 @@
+/* Estilos del documento de reporte (.doc). Se usan dentro de la aplicación y se copian
+   tal cual al archivo HTML que se descarga, por eso no dependen de variables externas. */
+.doc {
+  --d-tinta: #18212c; --d-tinta2: #4a5665; --d-linea: #d9d4c7; --d-marino: #1d3557; --d-naranja: #d9661f;
+  width: min(210mm, 100%); margin: 0 auto; background: #fff; color: var(--d-tinta);
+  padding: 16mm 15mm 14mm; box-shadow: 0 6px 30px rgba(0, 0, 0, .28);
+  font: 13px/1.5 "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.doc *, .doc *::before, .doc *::after { box-sizing: border-box; }
+.doc h1, .doc h2, .doc h3, .doc p { margin: 0; }
+.doc-cab { border-bottom: 3px solid var(--d-marino); padding-bottom: 10px; margin-bottom: 6px; }
+.doc-cab .sobre { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--d-tinta2); }
+.doc h1 { font-size: 24px; line-height: 1.2; margin-top: 3px; letter-spacing: -.01em; }
+.doc-carril { height: 3px; background: repeating-linear-gradient(90deg, #f2b705 0 22px, transparent 22px 38px); margin-bottom: 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.doc-ficha { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px 14px; margin: 0 0 4px; }
+.doc-ficha div { min-width: 0; }
+.doc-ficha dt { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--d-tinta2); }
+.doc-ficha dd { margin: 0; font-weight: 600; }
+.doc h2 { font-size: 15px; margin: 18px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--d-linea); color: var(--d-marino); break-after: avoid; }
+.doc h3 { font-size: 12.5px; margin: 12px 0 5px; break-after: avoid; }
+.doc p + p { margin-top: 6px; }
+.doc ul { margin: 0; padding-left: 18px; }
+.doc li + li { margin-top: 4px; }
+.doc .nota { font-size: 11.5px; color: var(--d-tinta2); margin-top: 5px; }
+.doc .aviso { border: 1px solid #efc9ab; border-left: 4px solid var(--d-naranja); background: #fbeee4; padding: 8px 12px; border-radius: 6px; margin: 8px 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.doc-cifras { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 8px 0 4px; }
+.doc-cifras > div { border: 1px solid var(--d-linea); border-radius: 6px; padding: 7px 10px; break-inside: avoid; }
+.doc-cifras .rotulo { font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--d-tinta2); }
+.doc-cifras .valor { font-size: 16px; font-weight: 700; line-height: 1.25; }
+.doc-cifras .detalle { font-size: 11px; color: var(--d-tinta2); }
+.doc-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; align-items: start; }
+.doc figure { margin: 6px 0 0; break-inside: avoid; }
+.doc figure img { display: block; width: 100%; height: auto; }
+.doc figcaption { font-size: 11.5px; color: var(--d-tinta2); margin-top: 3px; }
+.doc table { border-collapse: collapse; width: 100%; font-size: 11.5px; }
+.doc th, .doc td { padding: 3.5px 7px; text-align: right; border-bottom: 1px solid #e9e5da; white-space: nowrap; }
+.doc th:first-child, .doc td:first-child { text-align: left; }
+.doc thead th { font-size: 10.5px; color: var(--d-tinta2); border-bottom: 1px solid #b9b3a3; vertical-align: bottom; white-space: normal; }
+.doc thead { display: table-header-group; }
+.doc tr { break-inside: avoid; }
+.doc .junto { break-inside: avoid; }
+.doc tbody th { font-weight: 600; }
+.doc tfoot td, .doc tfoot th { font-weight: 700; border-top: 1px solid #b9b3a3; border-bottom: 0; }
+.doc .tabla-clave th { font-weight: 400; color: var(--d-tinta2); white-space: normal; }
+.doc .tabla-clave td { font-weight: 600; }
+.doc .tabla-clave td small { display: inline; font-size: inherit; font-weight: 400; color: var(--d-tinta2); margin-left: 5px; }
+.doc tr.seleccionada td, .doc tr.seleccionada th { background: #fbeee4; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.doc tr.no-comparable td { color: #7a8491; }
+.doc tr.fuera td.marca { color: #a8480c; font-weight: 700; }
+.doc .insignia { font-size: 10px; font-weight: 700; padding: 0 6px; border-radius: 99px; background: #e8edf4; color: var(--d-marino); margin-left: 5px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.doc .insignia.sel { background: var(--d-naranja); color: #fff; }
+.doc .tenue { color: #6d7784; }
+.doc td.izq, .doc th.izq { text-align: left; }
+.doc td.envolver { white-space: normal; }
+.doc caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.doc-pie { margin-top: 18px; padding-top: 8px; border-top: 1px solid var(--d-linea); font-size: 10.5px; color: var(--d-tinta2); }
+
+@media (max-width: 700px) {
+  .doc { padding: 20px 16px; }
+  .doc-ficha, .doc-cifras { grid-template-columns: repeat(2, 1fr); }
+  .doc-dos { grid-template-columns: 1fr; }
+  .doc .desplaza { overflow-x: auto; }
+}
+@media print {
+  @page { size: A4; margin: 14mm 13mm; }
+  .doc { width: auto; padding: 0; box-shadow: none; font-size: 11.5px; }
+}
