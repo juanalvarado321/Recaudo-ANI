@@ -23,6 +23,16 @@ no necesita servidor, instalación ni conexión a internet.
 La selección queda en la dirección (por ejemplo `index.html#peaje=1&modelo=reg`), de modo
 que se puede compartir un enlace a una vista concreta.
 
+## Publicación en GitHub Pages
+
+El flujo `.github/workflows/pages.yml` publica la aplicación en
+<https://juanalvarado321.github.io/Recaudo-ANI/> cada vez que se actualiza `main`:
+ejecuta las pruebas, regenera `index.html` a partir del CSV y publica solo ese archivo.
+
+Requiere activar Pages una única vez: en el repositorio, **Settings → Pages → Build and
+deployment → Source: GitHub Actions**. También se puede lanzar a mano desde la pestaña
+**Actions → Publicar en GitHub Pages → Run workflow**.
+
 ## Entrenamiento y prueba
 
 Los datos van de enero de 2014 a mayo de 2026.
@@ -81,6 +91,7 @@ Sumar todas las filas sin esta limpieza cuenta dos veces unos 300 meses.
 
 ```
 index.html            Aplicación generada (el entregable)
+.github/workflows/    Publicación automática en GitHub Pages
 build.js              Genera index.html a partir del CSV
 datos/                Archivo fuente
 src/limpieza.js       Lectura y limpieza del CSV (se ejecuta al generar)
